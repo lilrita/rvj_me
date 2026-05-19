@@ -6,7 +6,12 @@
     <title>RVJ | REAL-TIME GAMER MESSENGER</title>
     <script src="/socket.io/socket.io.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Courier New', monospace;
             background: radial-gradient(circle at 20% 30%, #0a0f1e, #03050a);
@@ -17,10 +22,13 @@
             padding: 20px;
             overflow: hidden;
         }
+
         .auth-overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(0,0,0,0.95);
             backdrop-filter: blur(10px);
             z-index: 1000;
@@ -28,6 +36,7 @@
             justify-content: center;
             align-items: center;
         }
+
         .auth-box {
             background: #0a0f1a;
             border: 2px solid #0ff;
@@ -37,52 +46,247 @@
             max-width: 90%;
             box-shadow: 0 0 50px rgba(0,255,255,0.3);
         }
-        .auth-box h2 { color: #0ff; text-align: center; margin-bottom: 30px; font-size: 32px; }
+
+        .auth-box h2 {
+            color: #0ff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+
         .auth-input {
-            width: 100%; padding: 12px; margin: 10px 0;
-            background: #010101; border: 1px solid #ff00ff;
-            color: #0ff; border-radius: 8px; outline: none;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #010101;
+            border: 1px solid #ff00ff;
+            color: #0ff;
+            border-radius: 8px;
+            outline: none;
         }
+
         .auth-btn {
-            width: 100%; padding: 12px; margin-top: 15px;
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
             background: linear-gradient(135deg, #ff00ff33, #00ffff33);
-            border: 1px solid #ff00ff; color: #0ff; cursor: pointer;
-            border-radius: 8px; font-family: monospace;
+            border: 1px solid #ff00ff;
+            color: #0ff;
+            cursor: pointer;
+            border-radius: 8px;
+            font-family: monospace;
         }
-        .switch-auth { text-align: center; margin-top: 15px; color: #88aaff; cursor: pointer; }
+
+        .switch-auth {
+            text-align: center;
+            margin-top: 15px;
+            color: #88aaff;
+            cursor: pointer;
+        }
+
         .rvj-messenger {
-            width: 1300px; max-width: 95vw; height: 88vh;
-            background: rgba(8,12,20,0.95); border-radius: 16px;
-            border: 1px solid rgba(0,255,255,0.3); display: flex;
-            overflow: hidden; display: none;
+            width: 1300px;
+            max-width: 95vw;
+            height: 88vh;
+            background: rgba(8,12,20,0.95);
+            border-radius: 16px;
+            border: 1px solid rgba(0,255,255,0.3);
+            display: flex;
+            overflow: hidden;
+            display: none;
         }
-        .gamer-sidebar { width: 32%; background: rgba(5,8,15,0.9); border-right: 2px solid #00ffff33; display: flex; flex-direction: column; }
-        .gamer-header { padding: 20px; background: linear-gradient(135deg, #0a0f1f, #010101); border-bottom: 2px solid #ff00ff; display: flex; justify-content: space-between; }
-        .rvj-logo { font-size: 28px; background: linear-gradient(45deg, #0ff, #f0f); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .logout-btn { background: #ff000033; border: 1px solid #ff0000; padding: 5px 12px; border-radius: 8px; cursor: pointer; }
-        .player-stats { padding: 12px 20px; background: #00000055; color: #0ff; font-size: 12px; }
-        .search-gamer { padding: 15px; }
-        .search-gamer input { width: 100%; padding: 10px; background: #0a0f1a; border: 1px solid #ff00ff77; border-radius: 8px; color: #0ff; }
-        .contacts-gamer { flex: 1; overflow-y: auto; }
-        .gamer-contact { display: flex; align-items: center; gap: 12px; padding: 14px 20px; cursor: pointer; border-bottom: 1px solid #1f2a3e; transition: 0.2s; }
-        .gamer-contact:hover { background: #0ff11a; }
-        .gamer-contact.active { background: linear-gradient(90deg, #ff00ff22, #0ff11a); border-left: 3px solid #ff00ff; }
-        .gamer-avatar { width: 48px; height: 48px; background: linear-gradient(135deg, #0ff, #f0f); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; color: #000; }
-        .online-status { width: 10px; height: 10px; border-radius: 50%; background: #0f0; display: inline-block; margin-left: 8px; }
-        .offline-status { background: #666; }
-        .add-friend-btn { background: #ff00ff33; border: 1px solid #0ff; color: #0ff; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 11px; }
-        .chat-gamer { flex: 1; display: flex; flex-direction: column; }
-        .chat-gamer-header { padding: 16px 20px; background: #0a0f1a; border-bottom: 2px solid #00ffff88; }
-        .messages-gamer { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
-        .message-gamer { display: flex; flex-direction: column; max-width: 75%; }
-        .message-gamer.received { align-items: flex-start; }
-        .message-gamer.sent { align-items: flex-end; align-self: flex-end; }
-        .bubble-gamer { padding: 10px 16px; border-radius: 20px; font-size: 14px; }
-        .received .bubble-gamer { background: #11161f; border: 1px solid #0ff88a; color: #bbffff; }
-        .sent .bubble-gamer { background: linear-gradient(135deg, #ff00cc33, #00ffff33); border: 1px solid #ff44ff; color: #ffffff; }
-        .input-gamer-area { padding: 15px 20px; background: #080c14; border-top: 1px solid #ff00ff88; display: flex; gap: 12px; }
-        .input-gamer-area input { flex: 1; background: #010101dd; border: 1px solid #0ff; padding: 12px; border-radius: 40px; color: #0ff; }
-        .gamer-btn { background: #0a0f1f; border: 2px solid #f0f; color: #f0f; padding: 10px 24px; border-radius: 30px; cursor: pointer; }
+
+        .gamer-sidebar {
+            width: 32%;
+            background: rgba(5,8,15,0.9);
+            border-right: 2px solid #00ffff33;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .gamer-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #0a0f1f, #010101);
+            border-bottom: 2px solid #ff00ff;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .rvj-logo {
+            font-size: 28px;
+            background: linear-gradient(45deg, #0ff, #f0f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logout-btn {
+            background: #ff000033;
+            border: 1px solid #ff0000;
+            padding: 5px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .player-stats {
+            padding: 12px 20px;
+            background: #00000055;
+            color: #0ff;
+            font-size: 12px;
+        }
+
+        .search-gamer {
+            padding: 15px;
+        }
+
+        .search-gamer input {
+            width: 100%;
+            padding: 10px;
+            background: #0a0f1a;
+            border: 1px solid #ff00ff77;
+            border-radius: 8px;
+            color: #0ff;
+        }
+
+        .contacts-gamer {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .gamer-contact {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #1f2a3e;
+            transition: 0.2s;
+        }
+
+        .gamer-contact:hover {
+            background: #0ff11a;
+        }
+
+        .gamer-contact.active {
+            background: linear-gradient(90deg, #ff00ff22, #0ff11a);
+            border-left: 3px solid #ff00ff;
+        }
+
+        .gamer-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #0ff, #f0f);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: #000;
+        }
+
+        .online-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #0f0;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        .offline-status {
+            background: #666;
+        }
+
+        .add-friend-btn {
+            background: #ff00ff33;
+            border: 1px solid #0ff;
+            color: #0ff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .chat-gamer {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-gamer-header {
+            padding: 16px 20px;
+            background: #0a0f1a;
+            border-bottom: 2px solid #00ffff88;
+        }
+
+        .messages-gamer {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message-gamer {
+            display: flex;
+            flex-direction: column;
+            max-width: 75%;
+        }
+
+        .message-gamer.received {
+            align-items: flex-start;
+        }
+
+        .message-gamer.sent {
+            align-items: flex-end;
+            align-self: flex-end;
+        }
+
+        .bubble-gamer {
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .received .bubble-gamer {
+            background: #11161f;
+            border: 1px solid #0ff88a;
+            color: #bbffff;
+        }
+
+        .sent .bubble-gamer {
+            background: linear-gradient(135deg, #ff00cc33, #00ffff33);
+            border: 1px solid #ff44ff;
+            color: #ffffff;
+        }
+
+        .input-gamer-area {
+            padding: 15px 20px;
+            background: #080c14;
+            border-top: 1px solid #ff00ff88;
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-gamer-area input {
+            flex: 1;
+            background: #010101dd;
+            border: 1px solid #0ff;
+            padding: 12px;
+            border-radius: 40px;
+            color: #0ff;
+        }
+
+        .gamer-btn {
+            background: #0a0f1f;
+            border: 2px solid #f0f;
+            color: #f0f;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -106,11 +310,11 @@
         </div>
         <div class="player-stats" id="currentUserDisplay">USER</div>
         <div class="search-gamer">
-            <input type="text" id="searchUsers" placeholder="🔍 FIND PLAYER...">
+            <input type="text" id="searchUsers" placeholder="FIND PLAYER...">
         </div>
         <div class="contacts-gamer" id="contactsList"></div>
         <div class="search-gamer">
-            <input type="text" id="addFriendInput" placeholder="➕ ADD FRIEND BY TAG">
+            <input type="text" id="addFriendInput" placeholder="ADD BY TAG">
             <button class="gamer-btn" style="width:100%; margin-top:8px;" onclick="sendFriendRequest()">SEND REQUEST</button>
         </div>
     </div>
@@ -120,8 +324,8 @@
         </div>
         <div class="messages-gamer" id="messagesContainer"></div>
         <div class="input-gamer-area">
-            <input type="text" id="messageInput" placeholder="💬 TYPE MESSAGE...">
-            <button class="gamer-btn" id="sendBtn">⚡ SEND</button>
+            <input type="text" id="messageInput" placeholder="TYPE MESSAGE...">
+            <button class="gamer-btn" id="sendBtn">SEND</button>
         </div>
     </div>
 </div>
@@ -131,43 +335,7 @@
     let currentUser = null;
     let currentChatUserId = null;
     let allUsers = [];
-    let messagesHistory = {};
-    let currentFriendRequests = [];
-    let currentFriends = [];
-
-    // Функция загрузки пользователей с сервера
-    async function loadAllUsers() {
-        try {
-            const res = await fetch('/users');
-            allUsers = await res.json();
-            console.log('📡 Загружены пользователи:', allUsers);
-            return allUsers;
-        } catch(e) {
-            console.error('Ошибка загрузки:', e);
-            return [];
-        }
-    }
-
-    // Загрузка данных текущего пользователя с сервера
-    async function refreshUserData() {
-        if(!currentUser) return;
-        const res = await fetch('/users');
-        const serverUsers = await res.json();
-        const updatedUser = serverUsers.find(u => u.id === currentUser.id);
-        if(updatedUser) {
-            // Восстанавливаем friends и friendRequests из server (но у нас нет этого в /users)
-            // Поэтому делаем отдельный запрос на получение полных данных
-            const fullRes = await fetch(`/user/${currentUser.id}`);
-            if(fullRes.ok) {
-                const fullUser = await fullRes.json();
-                currentUser.friends = fullUser.friends || [];
-                currentUser.friendRequests = fullUser.friendRequests || [];
-                currentFriends = currentUser.friends;
-                currentFriendRequests = currentUser.friendRequests;
-            }
-        }
-        renderFriendsList();
-    }
+    let messagesHistory = {}; // { friendId: [messages] }
 
     // --- Auth functions ---
     async function register() {
@@ -198,15 +366,12 @@
         const data = await res.json();
         if(data.success) {
             currentUser = data.user;
-            currentFriends = currentUser.friends || [];
-            currentFriendRequests = currentUser.friendRequests || [];
-            
             document.getElementById('authOverlay').style.display = 'none';
             document.getElementById('messengerApp').style.display = 'flex';
             document.getElementById('currentUserDisplay').innerHTML = `🎮 ${currentUser.username}`;
             
-            await loadAllUsers();
             initSocket();
+            await loadAllUsers();
             renderFriendsList();
             
             document.getElementById('sendBtn').onclick = sendMessage;
@@ -217,17 +382,18 @@
         }
     }
 
+    async function loadAllUsers() {
+        const res = await fetch('/users');
+        allUsers = await res.json();
+    }
+
     function initSocket() {
-        if(socket) socket.disconnect();
         socket = io();
-        
         socket.on('connect', () => {
-            console.log('✅ Socket подключён');
             socket.emit('user-online', currentUser.id);
         });
         
         socket.on('new-message', (msg) => {
-            console.log('📨 Новое сообщение:', msg);
             if(!messagesHistory[msg.fromUserId]) messagesHistory[msg.fromUserId] = [];
             messagesHistory[msg.fromUserId].push({
                 text: msg.text,
@@ -237,79 +403,46 @@
             if(currentChatUserId === msg.fromUserId) {
                 renderMessages();
             }
-            renderFriendsList();
+            renderFriendsList(); // update last message preview
         });
         
         socket.on('friend-request-received', (data) => {
-            console.log('📨 Получена заявка от:', data.fromUser);
-            alert(`📨 Friend request from ${data.fromUser.username}!`);
-            // Обновляем список заявок
-            if(!currentFriendRequests.includes(data.fromUser.id)) {
-                currentFriendRequests.push(data.fromUser.id);
-            }
+            alert(`📨 Friend request from ${data.fromUser.username}`);
             renderFriendsList();
         });
         
-        socket.on('friend-added', async (data) => {
-            console.log('🎉 Добавлен друг:', data.friend);
+        socket.on('friend-added', (data) => {
             alert(`🎉 ${data.friend.username} is now your friend!`);
-            await loadAllUsers();
-            // Обновляем список друзей
-            if(!currentFriends.includes(data.friend.id)) {
-                currentFriends.push(data.friend.id);
-            }
-            // Удаляем из заявок
-            currentFriendRequests = currentFriendRequests.filter(id => id !== data.friend.id);
-            renderFriendsList();
+            loadAllUsers().then(() => renderFriendsList());
         });
         
         socket.on('friend-status-change', (data) => {
-            console.log('🟢 Статус изменён:', data);
             const user = allUsers.find(u => u.id === data.userId);
             if(user) user.online = data.online;
             renderFriendsList();
         });
-        
-        socket.on('friend-request-sent', (data) => {
-            console.log('✅ Заявка отправлена');
-        });
     }
 
     async function sendFriendRequest() {
-        const tag = document.getElementById('addFriendInput').value.trim();
-        if(!tag) {
-            alert("❌ Enter a player tag!");
-            return;
-        }
-        
-        await loadAllUsers();
+        const tag = document.getElementById('addFriendInput').value;
         const targetUser = allUsers.find(u => u.username === tag);
-        
         if(!targetUser) {
-            alert("❌ Player not found!");
+            alert("❌ Player not found");
             return;
         }
         if(targetUser.id === currentUser.id) {
-            alert("❌ Can't add yourself!");
+            alert("❌ Can't add yourself");
             return;
         }
-        if(currentFriends.includes(targetUser.id)) {
-            alert("⚠️ Already friends!");
-            return;
-        }
-        
-        console.log(`📨 Отправка заявки от ${currentUser.id} к ${targetUser.id}`);
         socket.emit('send-friend-request', {
             fromUserId: currentUser.id,
             toUserId: targetUser.id
         });
-        
-        alert(`📨 Friend request sent to ${tag}!`);
+        alert("📨 Request sent!");
         document.getElementById('addFriendInput').value = '';
     }
 
     function acceptFriendRequest(requesterId) {
-        console.log(`✅ Принятие заявки от ${requesterId}`);
         socket.emit('accept-friend-request', {
             currentUserId: currentUser.id,
             requesterId: requesterId
@@ -317,29 +450,24 @@
     }
 
     function declineFriendRequest(requesterId) {
-        console.log(`❌ Отклонение заявки от ${requesterId}`);
         socket.emit('decline-friend-request', {
             currentUserId: currentUser.id,
             requesterId: requesterId
         });
-        currentFriendRequests = currentFriendRequests.filter(id => id !== requesterId);
         renderFriendsList();
     }
 
     function openChat(friendId) {
         currentChatUserId = friendId;
         const friend = allUsers.find(u => u.id === friendId);
-        document.getElementById('chatUserName').innerHTML = `${friend?.username || 'User'} ${friend?.online ? '🟢' : '⚫'}`;
+        document.getElementById('chatUserName').innerHTML = `${friend?.username} ${friend?.online ? '🟢' : '⚫'}`;
         renderMessages();
     }
 
     function sendMessage() {
         const input = document.getElementById('messageInput');
         const text = input.value.trim();
-        if(!text || !currentChatUserId) {
-            if(!currentChatUserId) alert("Select a friend first!");
-            return;
-        }
+        if(!text || !currentChatUserId) return;
         
         const timestamp = new Date().toLocaleTimeString();
         if(!messagesHistory[currentChatUserId]) messagesHistory[currentChatUserId] = [];
@@ -363,7 +491,7 @@
     function renderMessages() {
         const container = document.getElementById('messagesContainer');
         if(!currentChatUserId) {
-            container.innerHTML = '<div style="text-align:center;color:#88aaff;">⚔️ SELECT A CLAN MEMBER ⚔️</div>';
+            container.innerHTML = '<div style="text-align:center;color:#88aaff;">Select a friend</div>';
             return;
         }
         const messages = messagesHistory[currentChatUserId] || [];
@@ -381,54 +509,50 @@
         const container = document.getElementById('contactsList');
         const searchTerm = document.getElementById('searchUsers').value.toLowerCase();
         
-        let html = '';
-        
-        // Показываем входящие заявки
-        if(currentFriendRequests && currentFriendRequests.length > 0) {
-            html += `<div style="padding:10px 20px;color:#ffaa44;font-size:12px;">⚔️ PENDING REQUESTS ⚔️</div>`;
-            for(const reqId of currentFriendRequests) {
-                const reqUser = allUsers.find(u => u.id === reqId);
-                if(reqUser) {
+        // Get current user data from server (in real app you'd have full user object)
+        fetch('/users').then(res => res.json()).then(serverUsers => {
+            allUsers = serverUsers;
+            // Find current user's full data (we don't have friend list on client)
+            // For demo, we'll manually sync — in production store in localStorage
+            // Quick fix: we'll store friend list in localStorage after accept
+            let friendIds = JSON.parse(localStorage.getItem(`rvj_friends_${currentUser.id}`)) || [];
+            
+            let html = '';
+            // Show pending requests
+            const pendingRequests = JSON.parse(localStorage.getItem(`rvj_requests_${currentUser.id}`)) || [];
+            if(pendingRequests.length > 0) {
+                html += `<div style="padding:10px;color:#ffaa44;">⚔️ REQUESTS ⚔️</div>`;
+                pendingRequests.forEach(req => {
                     html += `
-                        <div class="gamer-contact" style="background:#ff00ff11;">
-                            <div class="gamer-avatar" style="background:#ff44ff;">${reqUser.avatar}</div>
-                            <div class="gamer-info">
-                                <div class="gamer-name">${reqUser.username}</div>
-                                <div class="gamer-status">🎮 WANTS TO ADD YOU</div>
-                            </div>
+                        <div class="gamer-contact">
+                            <div class="gamer-avatar">${req.avatar}</div>
+                            <div>${req.username}</div>
+                            <button class="add-friend-btn" onclick="acceptFriendRequest(${req.id})">✔️</button>
+                            <button class="add-friend-btn" onclick="declineFriendRequest(${req.id})">❌</button>
+                        </div>
+                    `;
+                });
+            }
+            
+            const friends = allUsers.filter(u => friendIds.includes(u.id) && u.username.toLowerCase().includes(searchTerm));
+            if(friends.length > 0) {
+                html += `<div style="padding:10px;color:#0ff;">🎧 CLAN 🎧</div>`;
+                friends.forEach(f => {
+                    html += `
+                        <div class="gamer-contact ${currentChatUserId === f.id ? 'active' : ''}" onclick="openChat(${f.id})">
+                            <div class="gamer-avatar">${f.avatar}</div>
                             <div>
-                                <button class="add-friend-btn" onclick="acceptFriendRequest(${reqUser.id})">✔️ ACCEPT</button>
-                                <button class="add-friend-btn" style="background:#ff000033;" onclick="declineFriendRequest(${reqUser.id})">❌</button>
+                                <div style="color:#0ff;">${f.username}</div>
+                                <div class="${f.online ? 'online-status' : 'offline-status'}" style="width:8px;height:8px;border-radius:50%;display:inline-block;"></div>
                             </div>
                         </div>
                     `;
-                }
+                });
+            } else {
+                html += `<div style="padding:20px;color:#888;">💀 No friends yet</div>`;
             }
-        }
-        
-        // Показываем друзей
-        const friendsList = allUsers.filter(u => currentFriends.includes(u.id) && u.username.toLowerCase().includes(searchTerm));
-        if(friendsList.length > 0) {
-            html += `<div style="padding:10px 20px;color:#0ff;font-size:12px;">🎧 CLAN MEMBERS 🎧</div>`;
-            friendsList.forEach(f => {
-                html += `
-                    <div class="gamer-contact ${currentChatUserId === f.id ? 'active' : ''}" onclick="openChat(${f.id})">
-                        <div class="gamer-avatar" style="background: linear-gradient(135deg, #0ff, #f0f);">${f.avatar}</div>
-                        <div class="gamer-info">
-                            <div class="gamer-name">${f.username}</div>
-                            <div class="gamer-status">
-                                <span class="${f.online ? 'online-status' : 'offline-status'}" style="width:8px;height:8px;border-radius:50%;display:inline-block;"></span>
-                                ${f.online ? ' ONLINE' : ' OFFLINE'}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        } else if(currentFriendRequests.length === 0) {
-            html += `<div style="padding:20px;color:#88aaff;text-align:center;">💀 asdasdasd 💀</div>`;
-        }
-        
-        container.innerHTML = html;
+            container.innerHTML = html;
+        });
     }
 
     function escapeHtml(str) {
@@ -463,7 +587,6 @@
     function logout() {
         if(socket) socket.disconnect();
         currentUser = null;
-        currentChatUserId = null;
         document.getElementById('authOverlay').style.display = 'flex';
         document.getElementById('messengerApp').style.display = 'none';
         showLogin();
