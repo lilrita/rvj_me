@@ -2,63 +2,32 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RVJ | REAL-TIME GAMER MESSENGER</title>
+    <script src="/socket.io/socket.io.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Courier New', 'Fira Code', monospace;
+            font-family: 'Courier New', monospace;
             background: radial-gradient(circle at 20% 30%, #0a0f1e, #03050a);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            position: relative;
             overflow: hidden;
         }
-
-        body::before {
-            content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,255,0.03) 2px, rgba(0,255,255,0.03) 4px);
-            animation: scan 8s linear infinite;
-            pointer-events: none;
-        }
-
-        @keyframes scan {
-            0% { transform: translateY(-50%); }
-            100% { transform: translateY(0%); }
-        }
-
-        /* Auth Modal */
         .auth-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: rgba(0,0,0,0.95);
             backdrop-filter: blur(10px);
             z-index: 1000;
             display: flex;
             justify-content: center;
             align-items: center;
-            animation: fadeIn 0.3s;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
         .auth-box {
             background: #0a0f1a;
             border: 2px solid #0ff;
@@ -68,305 +37,52 @@
             max-width: 90%;
             box-shadow: 0 0 50px rgba(0,255,255,0.3);
         }
-
-        .auth-box h2 {
-            color: #0ff;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 32px;
-            letter-spacing: 3px;
-        }
-
+        .auth-box h2 { color: #0ff; text-align: center; margin-bottom: 30px; font-size: 32px; }
         .auth-input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            background: #010101;
-            border: 1px solid #ff00ff;
-            color: #0ff;
-            font-family: monospace;
-            border-radius: 8px;
-            outline: none;
+            width: 100%; padding: 12px; margin: 10px 0;
+            background: #010101; border: 1px solid #ff00ff;
+            color: #0ff; border-radius: 8px; outline: none;
         }
-
-        .auth-input:focus {
-            border-color: #0ff;
-            box-shadow: 0 0 10px #0ff;
-        }
-
         .auth-btn {
-            width: 100%;
-            padding: 12px;
-            margin-top: 15px;
+            width: 100%; padding: 12px; margin-top: 15px;
             background: linear-gradient(135deg, #ff00ff33, #00ffff33);
-            border: 1px solid #ff00ff;
-            color: #0ff;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 16px;
+            border: 1px solid #ff00ff; color: #0ff; cursor: pointer;
+            border-radius: 8px; font-family: monospace;
         }
-
-        .auth-btn:hover {
-            background: #ff00ff66;
-            box-shadow: 0 0 15px #ff00ff;
-        }
-
-        .switch-auth {
-            text-align: center;
-            margin-top: 15px;
-            color: #88aaff;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .switch-auth:hover {
-            color: #0ff;
-            text-decoration: underline;
-        }
-
-        /* Main Messenger */
+        .switch-auth { text-align: center; margin-top: 15px; color: #88aaff; cursor: pointer; }
         .rvj-messenger {
-            width: 1300px;
-            max-width: 95vw;
-            height: 88vh;
-            background: rgba(8,12,20,0.95);
-            backdrop-filter: blur(8px);
-            border-radius: 16px;
-            border: 1px solid rgba(0,255,255,0.3);
-            box-shadow: 0 0 30px rgba(0,255,255,0.2);
-            display: flex;
-            overflow: hidden;
-            display: none;
+            width: 1300px; max-width: 95vw; height: 88vh;
+            background: rgba(8,12,20,0.95); border-radius: 16px;
+            border: 1px solid rgba(0,255,255,0.3); display: flex;
+            overflow: hidden; display: none;
         }
-
-        .gamer-sidebar {
-            width: 32%;
-            background: rgba(5,8,15,0.9);
-            border-right: 2px solid #00ffff33;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .gamer-header {
-            padding: 20px;
-            background: linear-gradient(135deg, #0a0f1f, #010101);
-            border-bottom: 2px solid #ff00ff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .rvj-logo {
-            font-size: 28px;
-            font-weight: bold;
-            background: linear-gradient(45deg, #0ff, #f0f);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .player-stats {
-            padding: 12px 20px;
-            background: #00000055;
-            border-bottom: 1px solid #ff00ff55;
-            font-size: 11px;
-            color: #0ff;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .search-gamer {
-            padding: 15px;
-        }
-
-        .search-gamer input {
-            width: 100%;
-            padding: 10px 15px;
-            background: #0a0f1a;
-            border: 1px solid #ff00ff77;
-            border-radius: 8px;
-            color: #0ff;
-            font-family: monospace;
-            outline: none;
-        }
-
-        .contacts-gamer {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .gamer-contact {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 20px;
-            cursor: pointer;
-            border-bottom: 1px solid #1f2a3e;
-            transition: all 0.2s;
-        }
-
-        .gamer-contact:hover {
-            background: #0ff11a;
-            border-left: 3px solid #0ff;
-        }
-
-        .gamer-contact.active {
-            background: linear-gradient(90deg, #ff00ff22, #0ff11a);
-            border-left: 3px solid #ff00ff;
-        }
-
-        .gamer-avatar {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #0ff, #f0f);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 20px;
-            color: #000;
-        }
-
-        .gamer-info {
-            flex: 1;
-        }
-
-        .gamer-name {
-            font-weight: bold;
-            color: #0ff;
-        }
-
-        .gamer-status {
-            font-size: 10px;
-            color: #f0f;
-        }
-
-        .add-friend-btn {
-            background: #ff00ff33;
-            border: 1px solid #0ff;
-            color: #0ff;
-            padding: 5px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 11px;
-        }
-
-        .chat-gamer {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #03060ecc;
-        }
-
-        .chat-gamer-header {
-            padding: 16px 20px;
-            background: #0a0f1a;
-            border-bottom: 2px solid #00ffff88;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .messages-gamer {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .message-gamer {
-            display: flex;
-            flex-direction: column;
-            max-width: 75%;
-            animation: messagePop 0.2s ease;
-        }
-
-        @keyframes messagePop {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .message-gamer.received {
-            align-items: flex-start;
-        }
-
-        .message-gamer.sent {
-            align-items: flex-end;
-            align-self: flex-end;
-        }
-
-        .bubble-gamer {
-            padding: 10px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-family: monospace;
-            word-wrap: break-word;
-        }
-
-        .received .bubble-gamer {
-            background: #11161f;
-            border: 1px solid #0ff88a;
-            color: #bbffff;
-        }
-
-        .sent .bubble-gamer {
-            background: linear-gradient(135deg, #ff00cc33, #00ffff33);
-            border: 1px solid #ff44ff;
-            color: #ffffff;
-        }
-
-        .input-gamer-area {
-            padding: 15px 20px;
-            background: #080c14;
-            border-top: 1px solid #ff00ff88;
-            display: flex;
-            gap: 12px;
-        }
-
-        .input-gamer-area input {
-            flex: 1;
-            background: #010101dd;
-            border: 1px solid #0ff;
-            padding: 12px 18px;
-            border-radius: 40px;
-            color: #0ff;
-            font-family: monospace;
-            outline: none;
-        }
-
-        .gamer-btn {
-            background: #0a0f1f;
-            border: 2px solid #f0f;
-            color: #f0f;
-            padding: 10px 24px;
-            border-radius: 30px;
-            cursor: pointer;
-        }
-
-        .gamer-btn:hover {
-            background: #ff00ff44;
-            box-shadow: 0 0 15px #ff00ff;
-        }
-
-        .logout-btn {
-            background: #ff000033;
-            border: 1px solid #ff0000;
-            padding: 5px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        @media (max-width: 700px) {
-            .gamer-sidebar {
-                width: 40%;
-            }
-        }
+        .gamer-sidebar { width: 32%; background: rgba(5,8,15,0.9); border-right: 2px solid #00ffff33; display: flex; flex-direction: column; }
+        .gamer-header { padding: 20px; background: linear-gradient(135deg, #0a0f1f, #010101); border-bottom: 2px solid #ff00ff; display: flex; justify-content: space-between; }
+        .rvj-logo { font-size: 28px; background: linear-gradient(45deg, #0ff, #f0f); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .logout-btn { background: #ff000033; border: 1px solid #ff0000; padding: 5px 12px; border-radius: 8px; cursor: pointer; }
+        .player-stats { padding: 12px 20px; background: #00000055; color: #0ff; font-size: 12px; }
+        .search-gamer { padding: 15px; }
+        .search-gamer input { width: 100%; padding: 10px; background: #0a0f1a; border: 1px solid #ff00ff77; border-radius: 8px; color: #0ff; }
+        .contacts-gamer { flex: 1; overflow-y: auto; }
+        .gamer-contact { display: flex; align-items: center; gap: 12px; padding: 14px 20px; cursor: pointer; border-bottom: 1px solid #1f2a3e; transition: 0.2s; }
+        .gamer-contact:hover { background: #0ff11a; }
+        .gamer-contact.active { background: linear-gradient(90deg, #ff00ff22, #0ff11a); border-left: 3px solid #ff00ff; }
+        .gamer-avatar { width: 48px; height: 48px; background: linear-gradient(135deg, #0ff, #f0f); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; color: #000; }
+        .online-status { width: 10px; height: 10px; border-radius: 50%; background: #0f0; display: inline-block; margin-left: 8px; }
+        .offline-status { background: #666; }
+        .add-friend-btn { background: #ff00ff33; border: 1px solid #0ff; color: #0ff; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 11px; }
+        .chat-gamer { flex: 1; display: flex; flex-direction: column; }
+        .chat-gamer-header { padding: 16px 20px; background: #0a0f1a; border-bottom: 2px solid #00ffff88; }
+        .messages-gamer { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+        .message-gamer { display: flex; flex-direction: column; max-width: 75%; }
+        .message-gamer.received { align-items: flex-start; }
+        .message-gamer.sent { align-items: flex-end; align-self: flex-end; }
+        .bubble-gamer { padding: 10px 16px; border-radius: 20px; font-size: 14px; }
+        .received .bubble-gamer { background: #11161f; border: 1px solid #0ff88a; color: #bbffff; }
+        .sent .bubble-gamer { background: linear-gradient(135deg, #ff00cc33, #00ffff33); border: 1px solid #ff44ff; color: #ffffff; }
+        .input-gamer-area { padding: 15px 20px; background: #080c14; border-top: 1px solid #ff00ff88; display: flex; gap: 12px; }
+        .input-gamer-area input { flex: 1; background: #010101dd; border: 1px solid #0ff; padding: 12px; border-radius: 40px; color: #0ff; }
+        .gamer-btn { background: #0a0f1f; border: 2px solid #f0f; color: #f0f; padding: 10px 24px; border-radius: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -386,188 +102,292 @@
     <div class="gamer-sidebar">
         <div class="gamer-header">
             <div class="rvj-logo">◢ RVJ ◣</div>
-            <div class="logout-btn" onclick="logout()">🚪 EXIT</div>
+            <div class="logout-btn" onclick="logout()">EXIT</div>
         </div>
-        <div class="player-stats">
-            <span id="currentUserDisplay">USER</span>
-            <span>🏆 LVL 99</span>
-        </div>
+        <div class="player-stats" id="currentUserDisplay">USER</div>
         <div class="search-gamer">
             <input type="text" id="searchUsers" placeholder="🔍 FIND PLAYER...">
         </div>
-        <div class="contacts-gamer" id="contactsList">
-            <!-- Friends list -->
-        </div>
-        <div class="search-gamer" style="border-top:1px solid #ff00ff33;">
+        <div class="contacts-gamer" id="contactsList"></div>
+        <div class="search-gamer">
             <input type="text" id="addFriendInput" placeholder="➕ ADD FRIEND BY TAG">
             <button class="gamer-btn" style="width:100%; margin-top:8px;" onclick="sendFriendRequest()">SEND REQUEST</button>
         </div>
     </div>
-
     <div class="chat-gamer">
-        <div class="chat-gamer-header">
-            <div id="chatUserInfo">
-                <div style="font-weight:bold;color:#0ff;" id="chatUserName">SELECT CHAT</div>
-            </div>
+        <div class="chat-gamer-header" id="chatHeader">
+            <div style="font-weight:bold;color:#0ff;" id="chatUserName">SELECT CHAT</div>
         </div>
-        <div class="messages-gamer" id="messagesContainer">
-            <div style="text-align:center;color:#88aaff;padding:40px;">⚔️ CHOOSE A FRIEND ⚔️</div>
-        </div>
+        <div class="messages-gamer" id="messagesContainer"></div>
         <div class="input-gamer-area">
-            <input type="text" id="messageInput" placeholder="[ENTER] TYPE MESSAGE...">
-            <button class="gamer-btn" id="sendBtn">➤ SEND</button>
+            <input type="text" id="messageInput" placeholder="💬 TYPE MESSAGE...">
+            <button class="gamer-btn" id="sendBtn">⚡ SEND</button>
         </div>
     </div>
 </div>
 
 <script>
-    // Database structure
-    let users = JSON.parse(localStorage.getItem('rvj_users')) || [];
+    let socket = null;
     let currentUser = null;
     let currentChatUserId = null;
-    let refreshInterval = null;
+    let allUsers = [];
+    let messagesHistory = {};
+    let currentFriendRequests = [];
+    let currentFriends = [];
 
-    function saveUsers() {
-        localStorage.setItem('rvj_users', JSON.stringify(users));
-    }
-
-    // Initialize demo users if empty
-    if(users.length === 0) {
-        users = [
-            { id: 1, username: "GHOST_RVJ", password: "123", friends: [2,3], friendRequests: [], avatar: "GH" },
-            { id: 2, username: "NEO_N1GHT", password: "123", friends: [1], friendRequests: [3], avatar: "NN" },
-            { id: 3, username: "RAVEN_VORTEX", password: "123", friends: [1], friendRequests: [], avatar: "RV" }
-        ];
-        saveUsers();
-    }
-
-    function getNextId() {
-        return users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
-    }
-
-    function register(username, password) {
-        if(users.find(u => u.username === username)) {
-            alert("❌ GAMER TAG ALREADY EXISTS!");
-            return false;
+    // Функция загрузки пользователей с сервера
+    async function loadAllUsers() {
+        try {
+            const res = await fetch('/users');
+            allUsers = await res.json();
+            console.log('📡 Загружены пользователи:', allUsers);
+            return allUsers;
+        } catch(e) {
+            console.error('Ошибка загрузки:', e);
+            return [];
         }
-        const newUser = {
-            id: getNextId(),
-            username: username,
-            password: password,
-            friends: [],
-            friendRequests: [],
-            avatar: username.substring(0,2).toUpperCase(),
-            messages: {} // { friendId: [{text, fromId, timestamp, isRead}] }
-        };
-        users.push(newUser);
-        saveUsers();
-        alert("✅ ACCOUNT CREATED! NOW LOGIN.");
-        return true;
     }
 
-    function login() {
+    // Загрузка данных текущего пользователя с сервера
+    async function refreshUserData() {
+        if(!currentUser) return;
+        const res = await fetch('/users');
+        const serverUsers = await res.json();
+        const updatedUser = serverUsers.find(u => u.id === currentUser.id);
+        if(updatedUser) {
+            // Восстанавливаем friends и friendRequests из server (но у нас нет этого в /users)
+            // Поэтому делаем отдельный запрос на получение полных данных
+            const fullRes = await fetch(`/user/${currentUser.id}`);
+            if(fullRes.ok) {
+                const fullUser = await fullRes.json();
+                currentUser.friends = fullUser.friends || [];
+                currentUser.friendRequests = fullUser.friendRequests || [];
+                currentFriends = currentUser.friends;
+                currentFriendRequests = currentUser.friendRequests;
+            }
+        }
+        renderFriendsList();
+    }
+
+    // --- Auth functions ---
+    async function register() {
+        const username = document.getElementById('regUsername').value;
+        const password = document.getElementById('regPassword').value;
+        const res = await fetch('/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if(data.success) {
+            alert('✅ Account created! Please login.');
+            showLogin();
+        } else {
+            alert('❌ ' + data.error);
+        }
+    }
+
+    async function login() {
         const username = document.getElementById('loginUsername').value;
         const password = document.getElementById('loginPassword').value;
-        const user = users.find(u => u.username === username && u.password === password);
-        if(user) {
-            currentUser = user;
-            if(!currentUser.messages) currentUser.messages = {};
+        const res = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if(data.success) {
+            currentUser = data.user;
+            currentFriends = currentUser.friends || [];
+            currentFriendRequests = currentUser.friendRequests || [];
+            
             document.getElementById('authOverlay').style.display = 'none';
             document.getElementById('messengerApp').style.display = 'flex';
             document.getElementById('currentUserDisplay').innerHTML = `🎮 ${currentUser.username}`;
+            
+            await loadAllUsers();
+            initSocket();
             renderFriendsList();
-            startRealTimeRefresh();
+            
+            document.getElementById('sendBtn').onclick = sendMessage;
+            document.getElementById('messageInput').onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
+            document.getElementById('searchUsers').oninput = () => renderFriendsList();
+        } else {
+            alert('❌ Invalid credentials');
+        }
+    }
+
+    function initSocket() {
+        if(socket) socket.disconnect();
+        socket = io();
+        
+        socket.on('connect', () => {
+            console.log('✅ Socket подключён');
+            socket.emit('user-online', currentUser.id);
+        });
+        
+        socket.on('new-message', (msg) => {
+            console.log('📨 Новое сообщение:', msg);
+            if(!messagesHistory[msg.fromUserId]) messagesHistory[msg.fromUserId] = [];
+            messagesHistory[msg.fromUserId].push({
+                text: msg.text,
+                fromId: msg.fromUserId,
+                timestamp: msg.timestamp
+            });
+            if(currentChatUserId === msg.fromUserId) {
+                renderMessages();
+            }
+            renderFriendsList();
+        });
+        
+        socket.on('friend-request-received', (data) => {
+            console.log('📨 Получена заявка от:', data.fromUser);
+            alert(`📨 Friend request from ${data.fromUser.username}!`);
+            // Обновляем список заявок
+            if(!currentFriendRequests.includes(data.fromUser.id)) {
+                currentFriendRequests.push(data.fromUser.id);
+            }
+            renderFriendsList();
+        });
+        
+        socket.on('friend-added', async (data) => {
+            console.log('🎉 Добавлен друг:', data.friend);
+            alert(`🎉 ${data.friend.username} is now your friend!`);
+            await loadAllUsers();
+            // Обновляем список друзей
+            if(!currentFriends.includes(data.friend.id)) {
+                currentFriends.push(data.friend.id);
+            }
+            // Удаляем из заявок
+            currentFriendRequests = currentFriendRequests.filter(id => id !== data.friend.id);
+            renderFriendsList();
+        });
+        
+        socket.on('friend-status-change', (data) => {
+            console.log('🟢 Статус изменён:', data);
+            const user = allUsers.find(u => u.id === data.userId);
+            if(user) user.online = data.online;
+            renderFriendsList();
+        });
+        
+        socket.on('friend-request-sent', (data) => {
+            console.log('✅ Заявка отправлена');
+        });
+    }
+
+    async function sendFriendRequest() {
+        const tag = document.getElementById('addFriendInput').value.trim();
+        if(!tag) {
+            alert("❌ Enter a player tag!");
             return;
         }
-        alert("❌ WRONG TAG OR PASSWORD!");
-    }
-
-    function showRegister() {
-        const authForm = document.getElementById('authForm');
-        authForm.innerHTML = `
-            <input type="text" id="regUsername" class="auth-input" placeholder="NEW GAMER TAG">
-            <input type="password" id="regPassword" class="auth-input" placeholder="PASSWORD">
-            <button class="auth-btn" onclick="performRegister()">REGISTER</button>
-            <div class="switch-auth" onclick="showLogin()">← BACK TO LOGIN</div>
-        `;
-    }
-
-    function showLogin() {
-        const authForm = document.getElementById('authForm');
-        authForm.innerHTML = `
-            <input type="text" id="loginUsername" class="auth-input" placeholder="GAMER TAG">
-            <input type="password" id="loginPassword" class="auth-input" placeholder="PASSWORD">
-            <button class="auth-btn" onclick="login()">LOGIN</button>
-            <div class="switch-auth" onclick="showRegister()">NO ACCOUNT? REGISTER</div>
-        `;
-    }
-
-    function performRegister() {
-        const username = document.getElementById('regUsername').value;
-        const password = document.getElementById('regPassword').value;
-        if(register(username, password)) {
-            showLogin();
-        }
-    }
-
-    function sendFriendRequest() {
-        const targetTag = document.getElementById('addFriendInput').value;
-        if(!targetTag || targetTag === currentUser.username) {
-            alert("❌ CAN'T ADD YOURSELF!");
-            return;
-        }
-        const targetUser = users.find(u => u.username === targetTag);
+        
+        await loadAllUsers();
+        const targetUser = allUsers.find(u => u.username === tag);
+        
         if(!targetUser) {
-            alert("❌ PLAYER NOT FOUND!");
+            alert("❌ Player not found!");
             return;
         }
-        if(currentUser.friends.includes(targetUser.id)) {
-            alert("⚠️ ALREADY FRIENDS!");
+        if(targetUser.id === currentUser.id) {
+            alert("❌ Can't add yourself!");
             return;
         }
-        if(targetUser.friendRequests && targetUser.friendRequests.includes(currentUser.id)) {
-            alert("⏳ REQUEST ALREADY SENT!");
+        if(currentFriends.includes(targetUser.id)) {
+            alert("⚠️ Already friends!");
             return;
         }
-        if(!targetUser.friendRequests) targetUser.friendRequests = [];
-        targetUser.friendRequests.push(currentUser.id);
-        saveUsers();
-        alert(`📨 REQUEST SENT TO ${targetTag}!`);
+        
+        console.log(`📨 Отправка заявки от ${currentUser.id} к ${targetUser.id}`);
+        socket.emit('send-friend-request', {
+            fromUserId: currentUser.id,
+            toUserId: targetUser.id
+        });
+        
+        alert(`📨 Friend request sent to ${tag}!`);
         document.getElementById('addFriendInput').value = '';
+    }
+
+    function acceptFriendRequest(requesterId) {
+        console.log(`✅ Принятие заявки от ${requesterId}`);
+        socket.emit('accept-friend-request', {
+            currentUserId: currentUser.id,
+            requesterId: requesterId
+        });
+    }
+
+    function declineFriendRequest(requesterId) {
+        console.log(`❌ Отклонение заявки от ${requesterId}`);
+        socket.emit('decline-friend-request', {
+            currentUserId: currentUser.id,
+            requesterId: requesterId
+        });
+        currentFriendRequests = currentFriendRequests.filter(id => id !== requesterId);
         renderFriendsList();
     }
 
-    function acceptFriendRequest(friendId) {
-        const requestUser = users.find(u => u.id === friendId);
-        if(!requestUser) return;
-        if(!currentUser.friends.includes(friendId)) {
-            currentUser.friends.push(friendId);
-        }
-        if(!requestUser.friends.includes(currentUser.id)) {
-            requestUser.friends.push(currentUser.id);
-        }
-        currentUser.friendRequests = currentUser.friendRequests.filter(id => id !== friendId);
-        saveUsers();
-        renderFriendsList();
-        alert(`✅ ${requestUser.username} ADDED TO CLAN!`);
+    function openChat(friendId) {
+        currentChatUserId = friendId;
+        const friend = allUsers.find(u => u.id === friendId);
+        document.getElementById('chatUserName').innerHTML = `${friend?.username || 'User'} ${friend?.online ? '🟢' : '⚫'}`;
+        renderMessages();
     }
 
-    function declineFriendRequest(friendId) {
-        currentUser.friendRequests = currentUser.friendRequests.filter(id => id !== friendId);
-        saveUsers();
-        renderFriendsList();
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+        if(!text || !currentChatUserId) {
+            if(!currentChatUserId) alert("Select a friend first!");
+            return;
+        }
+        
+        const timestamp = new Date().toLocaleTimeString();
+        if(!messagesHistory[currentChatUserId]) messagesHistory[currentChatUserId] = [];
+        messagesHistory[currentChatUserId].push({
+            text: text,
+            fromId: currentUser.id,
+            timestamp: timestamp
+        });
+        
+        socket.emit('send-message', {
+            fromUserId: currentUser.id,
+            toUserId: currentChatUserId,
+            text: text,
+            timestamp: timestamp
+        });
+        
+        input.value = '';
+        renderMessages();
+    }
+
+    function renderMessages() {
+        const container = document.getElementById('messagesContainer');
+        if(!currentChatUserId) {
+            container.innerHTML = '<div style="text-align:center;color:#88aaff;">⚔️ SELECT A CLAN MEMBER ⚔️</div>';
+            return;
+        }
+        const messages = messagesHistory[currentChatUserId] || [];
+        container.innerHTML = '';
+        messages.forEach(msg => {
+            const div = document.createElement('div');
+            div.className = `message-gamer ${msg.fromId === currentUser.id ? 'sent' : 'received'}`;
+            div.innerHTML = `<div class="bubble-gamer">${escapeHtml(msg.text)}</div><div style="font-size:9px; margin-top:4px;">⚡ ${msg.timestamp}</div>`;
+            container.appendChild(div);
+        });
+        container.scrollTop = container.scrollHeight;
     }
 
     function renderFriendsList() {
         const container = document.getElementById('contactsList');
         const searchTerm = document.getElementById('searchUsers').value.toLowerCase();
         
-        // Show pending requests
         let html = '';
-        if(currentUser.friendRequests && currentUser.friendRequests.length > 0) {
+        
+        // Показываем входящие заявки
+        if(currentFriendRequests && currentFriendRequests.length > 0) {
             html += `<div style="padding:10px 20px;color:#ffaa44;font-size:12px;">⚔️ PENDING REQUESTS ⚔️</div>`;
-            currentUser.friendRequests.forEach(reqId => {
-                const reqUser = users.find(u => u.id === reqId);
+            for(const reqId of currentFriendRequests) {
+                const reqUser = allUsers.find(u => u.id === reqId);
                 if(reqUser) {
                     html += `
                         <div class="gamer-contact" style="background:#ff00ff11;">
@@ -583,107 +403,32 @@
                         </div>
                     `;
                 }
-            });
+            }
         }
         
-        const friends = currentUser.friends.map(fid => users.find(u => u.id === fid)).filter(f => f && f.username.toLowerCase().includes(searchTerm));
-        if(friends.length > 0) {
-            html += `<div style="padding:10px 20px;color:#0ff;font-size:12px;">🎧 CLAN MEMBERS ONLINE 🎧</div>`;
-            friends.forEach(friend => {
-                const isActive = (currentChatUserId === friend.id);
+        // Показываем друзей
+        const friendsList = allUsers.filter(u => currentFriends.includes(u.id) && u.username.toLowerCase().includes(searchTerm));
+        if(friendsList.length > 0) {
+            html += `<div style="padding:10px 20px;color:#0ff;font-size:12px;">🎧 CLAN MEMBERS 🎧</div>`;
+            friendsList.forEach(f => {
                 html += `
-                    <div class="gamer-contact ${isActive ? 'active' : ''}" onclick="openChat(${friend.id})">
-                        <div class="gamer-avatar" style="background: linear-gradient(135deg, #0ff, #f0f);">${friend.avatar}</div>
+                    <div class="gamer-contact ${currentChatUserId === f.id ? 'active' : ''}" onclick="openChat(${f.id})">
+                        <div class="gamer-avatar" style="background: linear-gradient(135deg, #0ff, #f0f);">${f.avatar}</div>
                         <div class="gamer-info">
-                            <div class="gamer-name">${friend.username}</div>
-                            <div class="gamer-status">🏆 RANK • ONLINE</div>
+                            <div class="gamer-name">${f.username}</div>
+                            <div class="gamer-status">
+                                <span class="${f.online ? 'online-status' : 'offline-status'}" style="width:8px;height:8px;border-radius:50%;display:inline-block;"></span>
+                                ${f.online ? ' ONLINE' : ' OFFLINE'}
+                            </div>
                         </div>
                     </div>
                 `;
             });
-        } else {
-            html += `<div style="padding:20px;color:#88aaff;text-align:center;">💀 NO FRIENDS YET. ADD SOME! 💀</div>`;
+        } else if(currentFriendRequests.length === 0) {
+            html += `<div style="padding:20px;color:#88aaff;text-align:center;">💀 asdasdasd 💀</div>`;
         }
+        
         container.innerHTML = html;
-    }
-
-    function openChat(friendId) {
-        currentChatUserId = friendId;
-        const friend = users.find(u => u.id === friendId);
-        if(friend) {
-            document.getElementById('chatUserName').innerHTML = `${friend.username} 💬`;
-        }
-        renderMessages();
-    }
-
-    function getMessagesWithUser(userId) {
-        if(!currentUser.messages[userId]) currentUser.messages[userId] = [];
-        return currentUser.messages[userId];
-    }
-
-    function renderMessages() {
-        const container = document.getElementById('messagesContainer');
-        if(!currentChatUserId) {
-            container.innerHTML = '<div style="text-align:center;color:#88aaff;padding:40px;">⚔️ SELECT A CLAN MEMBER ⚔️</div>';
-            return;
-        }
-        const messages = getMessagesWithUser(currentChatUserId);
-        container.innerHTML = '';
-        if(messages.length === 0) {
-            container.innerHTML = '<div style="text-align:center;color:#88aaff;padding:40px;">💬 NO MESSAGES YET. START THE RAID!</div>';
-        } else {
-            messages.forEach(msg => {
-                const msgDiv = document.createElement('div');
-                msgDiv.classList.add('message-gamer', msg.fromId === currentUser.id ? 'sent' : 'received');
-                msgDiv.innerHTML = `
-                    <div class="bubble-gamer">${escapeHtml(msg.text)}</div>
-                    <div class="message-time-gamer" style="font-size:9px;">⚡ ${msg.timestamp || 'now'}</div>
-                `;
-                container.appendChild(msgDiv);
-            });
-        }
-        container.scrollTop = container.scrollHeight;
-        
-        // Mark messages as read (in other user's perspective, but we just refresh)
-        saveUsers();
-    }
-
-    function sendMessage() {
-        const input = document.getElementById('messageInput');
-        const text = input.value.trim();
-        if(!text || !currentChatUserId) {
-            alert("SELECT A FRIEND FIRST!");
-            return;
-        }
-        const now = new Date();
-        const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-        
-        // Add to current user's messages
-        if(!currentUser.messages[currentChatUserId]) currentUser.messages[currentChatUserId] = [];
-        currentUser.messages[currentChatUserId].push({
-            text: text,
-            fromId: currentUser.id,
-            timestamp: timeStr,
-            isRead: false
-        });
-        
-        // Add to friend's messages
-        const friend = users.find(u => u.id === currentChatUserId);
-        if(friend) {
-            if(!friend.messages) friend.messages = {};
-            if(!friend.messages[currentUser.id]) friend.messages[currentUser.id] = [];
-            friend.messages[currentUser.id].push({
-                text: text,
-                fromId: currentUser.id,
-                timestamp: timeStr,
-                isRead: false
-            });
-            saveUsers();
-        }
-        
-        input.value = '';
-        renderMessages();
-        renderFriendsList(); // update last message preview if needed
     }
 
     function escapeHtml(str) {
@@ -695,48 +440,34 @@
         });
     }
 
-    function startRealTimeRefresh() {
-        if(refreshInterval) clearInterval(refreshInterval);
-        refreshInterval = setInterval(() => {
-            // Reload users from localStorage (sync between tabs/windows)
-            const updatedUsers = JSON.parse(localStorage.getItem('rvj_users'));
-            if(updatedUsers) {
-                const stillExists = updatedUsers.find(u => u.id === currentUser.id);
-                if(stillExists) {
-                    currentUser = stillExists;
-                    if(!currentUser.messages) currentUser.messages = {};
-                    if(currentChatUserId) {
-                        const chatFriendExists = currentUser.friends.includes(currentChatUserId);
-                        if(!chatFriendExists && currentChatUserId) {
-                            currentChatUserId = null;
-                            document.getElementById('chatUserName').innerHTML = "SELECT CHAT";
-                            renderMessages();
-                        }
-                    }
-                    renderFriendsList();
-                    if(currentChatUserId) renderMessages();
-                } else {
-                    logout(); // user deleted somehow
-                }
-            }
-        }, 1500);
+    function showRegister() {
+        const authForm = document.getElementById('authForm');
+        authForm.innerHTML = `
+            <input type="text" id="regUsername" class="auth-input" placeholder="NEW GAMER TAG">
+            <input type="password" id="regPassword" class="auth-input" placeholder="PASSWORD">
+            <button class="auth-btn" onclick="register()">REGISTER</button>
+            <div class="switch-auth" onclick="showLogin()">← BACK</div>
+        `;
+    }
+
+    function showLogin() {
+        const authForm = document.getElementById('authForm');
+        authForm.innerHTML = `
+            <input type="text" id="loginUsername" class="auth-input" placeholder="GAMER TAG">
+            <input type="password" id="loginPassword" class="auth-input" placeholder="PASSWORD">
+            <button class="auth-btn" onclick="login()">LOGIN</button>
+            <div class="switch-auth" onclick="showRegister()">NO ACCOUNT? REGISTER</div>
+        `;
     }
 
     function logout() {
-        if(refreshInterval) clearInterval(refreshInterval);
+        if(socket) socket.disconnect();
         currentUser = null;
         currentChatUserId = null;
         document.getElementById('authOverlay').style.display = 'flex';
         document.getElementById('messengerApp').style.display = 'none';
         showLogin();
     }
-
-    // Event listeners
-    document.getElementById('sendBtn').addEventListener('click', sendMessage);
-    document.getElementById('messageInput').addEventListener('keypress', (e) => {
-        if(e.key === 'Enter') sendMessage();
-    });
-    document.getElementById('searchUsers').addEventListener('input', () => renderFriendsList());
 </script>
 </body>
 </html>
