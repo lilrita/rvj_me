@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "username": "GHOST_RVJ",
+    "password": "123",
+    "avatar": "GH",
+    "friends": [
+      2,
+      3
+    ],
+    "friendRequests": [],
+    "online": false,
+    "socketId": null
+  },
+  {
+    "id": 2,
+    "username": "NEO_N1GHT",
+    "password": "123",
+    "avatar": "NN",
+    "friends": [
+      1
+    ],
+    "friendRequests": [
+      3
+    ],
+    "online": false,
+    "socketId": null
+  },
+  {
+    "id": 3,
+    "username": "RAVEN_VORTEX",
+    "password": "123",
+    "avatar": "RV",
+    "friends": [
+      1
+    ],
+    "friendRequests": [],
+    "online": false,
+    "socketId": null
+  }
+]
